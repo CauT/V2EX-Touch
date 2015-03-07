@@ -22,4 +22,11 @@
         android:name="co.desgemini.v2extouch.NavigationDrawerFragment"
         tools:layout="@layout/fragment_navigation_drawer" />
 
+    <!-- The PullToRefreshListView replaces a standard ListView widget. -->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
 </android.support.v4.widget.DrawerLayout>

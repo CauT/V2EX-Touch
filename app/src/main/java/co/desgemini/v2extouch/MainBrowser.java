@@ -1,32 +1,43 @@
 package co.desgemini.v2extouch;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.Gravity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+
+import java.util.Arrays;
 
 public class MainBrowser extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, OnRefreshListener<ListView>{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
+    private ViewPager mViewPager;
+    private static final String[] STRINGS = { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance",
+            "Ackawi", "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+            "Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
+            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+            "Allgauer Emmentaler" };
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -45,6 +56,46 @@ public class MainBrowser extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        mViewPager = (ViewPager) findViewById(R.id.vp_list);
+        mViewPager.setAdapter(new ListViewPagerAdapter());
+    }
+
+    private class ListViewPagerAdapter extends PagerAdapter {
+
+        @Override
+        public View instantiateItem(ViewGroup container, int position) {
+            Context context = container.getContext();
+
+            PullToRefreshListView plv = (PullToRefreshListView) LayoutInflater.from(context).inflate(
+                    R.layout.layout_listview_in_viewpager, container, false);
+
+            ListAdapter adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1,
+                    Arrays.asList(STRINGS));
+            plv.setAdapter(adapter);
+
+            plv.setOnRefreshListener(MainBrowser.this);
+
+            // Now just add ListView to ViewPager and return it
+            container.addView(plv, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+            return plv;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
     }
 
     @Override
@@ -59,7 +110,7 @@ public class MainBrowser extends ActionBarActivity
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = getString(R.string.daily_topics);
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
@@ -145,5 +196,8 @@ public class MainBrowser extends ActionBarActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
+    @Override
+    public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+//        new GetDataTask(refreshView).execute();
+    }
 }
