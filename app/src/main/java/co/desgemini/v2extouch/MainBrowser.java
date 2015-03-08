@@ -33,11 +33,13 @@ public class MainBrowser extends ActionBarActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private ViewPager mViewPager;
-    private static final String[] STRINGS = { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance",
-            "Ackawi", "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
-            "Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
-            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
-            "Allgauer Emmentaler" };
+//    private static final String[] STRINGS = { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance",
+//            "Ackawi", "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+//            "Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
+//            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+//            "Allgauer Emmentaler" };
+    private WebConnection wc = new WebConnection();
+    private ForumPost[] HotTopics = new ForumPost[10];
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -68,9 +70,10 @@ public class MainBrowser extends ActionBarActivity
 
             PullToRefreshListView plv = (PullToRefreshListView) LayoutInflater.from(context).inflate(
                     R.layout.layout_listview_in_viewpager, container, false);
-
             ListAdapter adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1,
-                    Arrays.asList(STRINGS));
+                    Arrays.asList(
+                            HotTopics[0] != null ? HotTopics[0].toString() : "Get Nothing"
+                    ));
             plv.setAdapter(adapter);
 
             plv.setOnRefreshListener(MainBrowser.this);
@@ -198,6 +201,7 @@ public class MainBrowser extends ActionBarActivity
     }
     @Override
     public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-//        new GetDataTask(refreshView).execute();
+        HotTopics = wc.refreshHotTopics();
+        mViewPager.invalidate();
     }
 }
