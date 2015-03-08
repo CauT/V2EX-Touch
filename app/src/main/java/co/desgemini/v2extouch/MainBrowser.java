@@ -2,6 +2,8 @@ package co.desgemini.v2extouch;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,6 +12,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,11 +22,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
 
 public class MainBrowser extends ActionBarActivity
@@ -38,8 +51,8 @@ public class MainBrowser extends ActionBarActivity
 //            "Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
 //            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
 //            "Allgauer Emmentaler" };
-    private WebConnection wc = new WebConnection();
     private ForumPost[] HotTopics = new ForumPost[10];
+    private Context context;
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -47,6 +60,7 @@ public class MainBrowser extends ActionBarActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        context = getApplicationContext();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_browser);
 
@@ -201,7 +215,145 @@ public class MainBrowser extends ActionBarActivity
     }
     @Override
     public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-        HotTopics = wc.refreshHotTopics();
-        mViewPager.invalidate();
+//        ExecutorService exec = Executors.newCachedThreadPool();
+//        try {
+            //注意每次需new一个实例,新建的任务只能执行一次,否则会出现异常
+            MyTask mTask = new MyTask();
+            mTask.execute();
+//            execute.setEnabled(false);
+//            cancel.setEnabled(true);
+//        } catch (Exception e) {
+//            showToast(getApplicationContext(), e.toString());
+//        }
+    }
+
+    public final void showToast(final Context context,
+                                final CharSequence text) {
+        final TextView tv = new TextView(context);
+        tv.setText(text);
+        tv.setGravity(Gravity.CENTER);
+        tv.setTextColor(Color.WHITE);
+        tv.setBackgroundResource(android.R.drawable.toast_frame);
+        final Toast t = new Toast(context);
+        t.setView(tv);
+        t.setDuration(Toast.LENGTH_SHORT);
+        t.show();
+    }
+
+    private class MyTask extends AsyncTask<String, Integer, String> {
+//        TextView textView = new TextView("");
+        String TAG = "dong";
+        //onPreExecute方法用于在执行后台任务前做一些UI操作
+        @Override
+        protected void onPreExecute() {
+            Log.i(TAG, "onPreExecute() called");
+//            textView.setText("loading...");
+        }
+
+        //doInBackground方法内部执行后台任务,不可在此方法内修改UI
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i(TAG, "doInBackground(Params... params) called");
+//            try {
+//                HttpClient client = new DefaultHttpClient();
+//                HttpGet get = new HttpGet(params[0]);
+//                HttpResponse response = client.execute(get);
+//                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+//                    HttpEntity entity = response.getEntity();
+//                    InputStream is = entity.getContent();
+//                    long total = entity.getContentLength();
+//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                    byte[] buf = new byte[1024];
+//                    int count = 0;
+//                    int length = -1;
+//                    while ((length = is.read(buf)) != -1) {
+//                        baos.write(buf, 0, length);
+//                        count += length;
+//                        //调用publishProgress公布进度,最后onProgressUpdate方法将被执行
+//                        publishProgress((int) ((count / (float) total) * 100));
+//                        //为了演示进度,休眠500毫秒
+//                        Thread.sleep(500);
+//                    }
+//                    return new String(baos.toByteArray(), "gb2312");
+//                }
+//            } catch (Exception e) {
+//                Log.e(TAG, e.getMessage());
+//            }
+//            return null;
+            String result = null;
+            InputStreamReader inputStream = null;
+            try {
+                URL url = new URL("http://www.v2ex.com/api/topics/hot.json");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(6*1000);
+                if (conn.getResponseCode() != 200)
+                    throw new RuntimeException("请求url失败");
+                inputStream = new InputStreamReader(conn.getInputStream());
+                BufferedReader bufferedReader = new BufferedReader(inputStream);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = bufferedReader.readLine()) != null) {
+                    sb.append(line + '\n');
+                }
+                conn.disconnect();
+                result = sb.toString();
+            } catch (Exception e) {
+                Exception ee = e;
+//            MalformedURLException
+//            showToast(context, "An exception was thrown");
+//                showToast(context, e.toString());
+            }
+            finally {
+                try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+            }
+            HotTopics = transformToJson(result);
+            return null;
+        }
+
+        //onProgressUpdate方法用于更新进度信息
+        @Override
+        protected void onProgressUpdate(Integer... progresses) {
+            Log.i(TAG, "onProgressUpdate(Progress... progresses) called");
+//            progressBar.setProgress(progresses[0]);
+//            textView.setText("loading..." + progresses[0] + "%");
+        }
+
+        //onPostExecute方法用于在执行完后台任务后更新UI,显示结果
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "onPostExecute(Result result) called");
+//            textView.setText(result);
+//            execute.setEnabled(true);
+//            cancel.setEnabled(false);
+            mViewPager.invalidate();
+            if (HotTopics[0] == null)
+                showToast(context, "fuck");
+        }
+
+        //onCancelled方法用于在取消执行中的任务时更改UI
+        @Override
+        protected void onCancelled() {
+            Log.i(TAG, "onCancelled() called");
+//            textView.setText("cancelled");
+//            progressBar.setProgress(0);
+//
+//            execute.setEnabled(true);
+//            cancel.setEnabled(false);
+        }
+        public final ForumPost[] transformToJson(String result) {
+            JSONArray jArray;
+            try {
+                jArray = new JSONArray(result);
+                for (int i=0; i<jArray.length(); i++) {
+                    JSONObject tmp = (JSONObject) jArray.get(i);
+                    HotTopics[i] = new ForumPost();
+                    HotTopics[i].loadData(tmp);
+                }
+            } catch (Exception e) {
+                String s = e.toString();
+                // Oops
+            }
+            return HotTopics;
+        }
     }
 }

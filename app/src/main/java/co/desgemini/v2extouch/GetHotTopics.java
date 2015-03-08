@@ -13,19 +13,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import java.util.concurrent.Callable;
 
 /**
- * Created by desgemini on 3/7/15.
+ * Created by apple on 3/8/15.
  */
-public class WebConnection {
+public class GetHotTopics implements Callable<ForumPost[]> {
     private ForumPost[] HotTopics = new ForumPost[10];
 
-    public ForumPost[] refreshHotTopics(Context context) {
-        return transformToJson(getData(context));
+    @Override
+    public ForumPost[] call() {
+        return transformToJson(getData());
     }
 
-    public final String getData(Context context) {
+    public final String getData() {
         String result = null;
         InputStreamReader inputStream = null;
         try {
@@ -42,8 +43,8 @@ public class WebConnection {
             result = sb.toString();
         } catch (Exception e) {
 //            MalformedURLException
-            showToast(context, "An exception was thrown");
-            showToast(context, e.toString());
+//            showToast(context, "An exception was thrown");
+//            showToast(context, e.toString());
         }
         finally {
             try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
@@ -65,7 +66,7 @@ public class WebConnection {
     }
 
     public final void showToast(final Context context,
-                                       final CharSequence text) {
+                                final CharSequence text) {
         final TextView tv = new TextView(context);
         tv.setText(text);
         tv.setGravity(Gravity.CENTER);
@@ -76,5 +77,4 @@ public class WebConnection {
         t.setDuration(Toast.LENGTH_SHORT);
         t.show();
     }
-
 }
