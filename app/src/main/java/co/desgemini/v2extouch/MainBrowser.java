@@ -104,6 +104,7 @@ public class MainBrowser extends ActionBarActivity
                                   for (ForumPost forumPost : HotTopicsArray) {
                                       mListItems.add(forumPost.getTitle());
                                   }
+                                  mPullRefreshListView.onRefreshComplete();
                                   mAdapter.notifyDataSetChanged();
                               } catch (Exception e) {
                               }
@@ -120,13 +121,13 @@ public class MainBrowser extends ActionBarActivity
             }
         });
 
-        // Add an end-of-list listener
-        mPullRefreshListView.setOnLastItemVisibleListener(new com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener() {
-            @Override
-            public void onLastItemVisible() {
-                Toast.makeText(MainBrowser.this, "End of List!", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        // Add an end-of-list listener
+//        mPullRefreshListView.setOnLastItemVisibleListener(new com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener() {
+//            @Override
+//            public void onLastItemVisible() {
+//                Toast.makeText(MainBrowser.this, "End of List!", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         ListView actualListView = mPullRefreshListView.getRefreshableView();
 
