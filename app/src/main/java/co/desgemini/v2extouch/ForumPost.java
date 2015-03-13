@@ -24,4 +24,8 @@ public class ForumPost {
         } catch (Exception e) {
         }
     }
+
+    public String getTitle() {
+        return this.title;
+    }
 }
