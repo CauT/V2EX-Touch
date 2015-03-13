@@ -34,7 +34,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class MainBrowser extends ActionBarActivity
@@ -45,17 +45,13 @@ public class MainBrowser extends ActionBarActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 //    private ViewPager mViewPager;
-    private ForumPost[] HotTopics = new ForumPost[10];
+//    private ForumPost[] HotTopics = new ForumPost[10];
+    private ArrayList<ForumPost> HotTopicsArray = new ArrayList<ForumPost>(20);
 
     // migrate the sample of list view
     private LinkedList<String> mListItems;
     private PullToRefreshListView mPullRefreshListView;
     private ArrayAdapter<String> mAdapter;
-    private String[] mStrings = { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
-            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
-            "Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
-            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
-            "Allgauer Emmentaler" };
 
 
     /**
@@ -67,6 +63,7 @@ public class MainBrowser extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_browser);
+        mListItems = new LinkedList<String>();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -98,10 +95,16 @@ public class MainBrowser extends ActionBarActivity
                           public void onResponse(JSONArray response) {
                               Log.d("Response", response.toString());
                               try {
+                                  ForumPost tmpForumPost;
                                   for (int i = 0; i < response.length(); i++) {
-                                      HotTopics[i] = new ForumPost();
-                                      HotTopics[i].loadData((JSONObject) response.get(i));
+                                      tmpForumPost = new ForumPost();
+                                      tmpForumPost.loadData((JSONObject) response.get(i));
+                                      HotTopicsArray.add(tmpForumPost);
                                   }
+                                  for (ForumPost forumPost : HotTopicsArray) {
+                                      mListItems.add(forumPost.getTitle());
+                                  }
+                                  mAdapter.notifyDataSetChanged();
                               } catch (Exception e) {
                               }
                           }
@@ -129,10 +132,6 @@ public class MainBrowser extends ActionBarActivity
 
         // Need to use the Actual ListView when registering for Context Menu
         registerForContextMenu(actualListView);
-
-        mListItems = new LinkedList<String>();
-        mListItems.addAll(Arrays.asList(mStrings));
-
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mListItems);
 
         /**
