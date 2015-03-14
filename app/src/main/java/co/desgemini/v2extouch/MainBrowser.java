@@ -44,9 +44,7 @@ public class MainBrowser extends ActionBarActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-//    private ViewPager mViewPager;
-//    private ForumPost[] HotTopics = new ForumPost[10];
-    private ArrayList<ForumPost> HotTopicsArray = new ArrayList<ForumPost>(20);
+    private ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
 
     // migrate the sample of list view
     private LinkedList<String> mListItems;
@@ -63,7 +61,7 @@ public class MainBrowser extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_browser);
-        mListItems = new LinkedList<String>();
+        mListItems = new LinkedList<>();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -134,7 +132,6 @@ public class MainBrowser extends ActionBarActivity
         // Need to use the Actual ListView when registering for Context Menu
         registerForContextMenu(actualListView);
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mListItems);
-
         /**
          * Add Sound Event Listener
          */
