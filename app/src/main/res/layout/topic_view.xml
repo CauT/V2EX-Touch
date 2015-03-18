@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/topic_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingTop="20dp"
+        android:textSize="12sp"/>
+
+    <TextView
+        android:id="@+id/topic_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/topic_author"
+        android:paddingLeft="10dp"
+        android:textSize="18sp"/>
+    <TextView
+        android:id="@+id/topic_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:layout_toRightOf="@id/topic_title"
+        android:layout_alignBottom="@id/topic_title"
+        android:textSize="15sp"/>
+    <TextView
+        android:id="@+id/topic_reply_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:layout_toRightOf="@id/topic_author"
+        android:layout_alignBottom="@id/topic_author"
+        android:textSize="12sp"/>
+</RelativeLayout>

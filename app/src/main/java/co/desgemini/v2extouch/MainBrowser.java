@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +50,7 @@ public class MainBrowser extends ActionBarActivity
     // migrate the sample of list view
     private LinkedList<String> mListItems;
     private PullToRefreshListView mPullRefreshListView;
-    private ArrayAdapter<String> mAdapter;
+    private ArrayAdapter<RelativeLayout> mAdapter;
 
 
     /**
@@ -131,7 +132,7 @@ public class MainBrowser extends ActionBarActivity
 
         // Need to use the Actual ListView when registering for Context Menu
         registerForContextMenu(actualListView);
-        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mListItems);
+        mAdapter = new ArrayAdapter<RelativeLayout>(this, (textView) android.R.layout.topic_view, mListItems);
         /**
          * Add Sound Event Listener
          */

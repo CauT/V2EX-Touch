@@ -111,7 +111,7 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 TextView tmpView = (TextView) super.getView(position, convertView, parent);
-                tmpView.setTextColor(Color.WHITE);
+                tmpView.setTextColor(Color.argb(255, 255, 255, 255));
                 tmpView.setBackgroundColor(Color.BLACK);
                 return tmpView;
             }
