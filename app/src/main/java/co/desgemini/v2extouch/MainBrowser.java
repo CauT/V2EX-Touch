@@ -17,9 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +34,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class MainBrowser extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks{
@@ -48,10 +45,10 @@ public class MainBrowser extends ActionBarActivity
     private ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
 
     // migrate the sample of list view
-    private LinkedList<String> mListItems;
+//    private LinkedList<String> mListItems;
     private PullToRefreshListView mPullRefreshListView;
-    private ArrayAdapter<RelativeLayout> mAdapter;
-
+//    private ArrayAdapter<RelativeLayout> mAdapter;
+    private TopicAdapter mTopicAdapter;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -62,7 +59,7 @@ public class MainBrowser extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_browser);
-        mListItems = new LinkedList<>();
+//        mListItems = new LinkedList<>();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -100,11 +97,11 @@ public class MainBrowser extends ActionBarActivity
                                       tmpForumPost.loadData((JSONObject) response.get(i));
                                       HotTopicsArray.add(tmpForumPost);
                                   }
-                                  for (ForumPost forumPost : HotTopicsArray) {
-                                      mListItems.add(forumPost.getTitle());
-                                  }
+//                                  for (ForumPost forumPost : HotTopicsArray) {
+//                                      mListItems.add(forumPost.getTitle());
+//                                  }
                                   mPullRefreshListView.onRefreshComplete();
-                                  mAdapter.notifyDataSetChanged();
+                                  mTopicAdapter.notifyDataSetChanged();
                               } catch (Exception e) {
                               }
                           }
@@ -132,7 +129,8 @@ public class MainBrowser extends ActionBarActivity
 
         // Need to use the Actual ListView when registering for Context Menu
         registerForContextMenu(actualListView);
-        mAdapter = new ArrayAdapter<RelativeLayout>(this, (textView) android.R.layout.topic_view, mListItems);
+//        mAdapter = new ArrayAdapter<RelativeLayout>(this, (textView) android.R.layout.topic_view, mListItems);
+        mTopicAdapter = new TopicAdapter(getApplicationContext(), HotTopicsArray);
         /**
          * Add Sound Event Listener
          */
@@ -144,7 +142,7 @@ public class MainBrowser extends ActionBarActivity
 
         // You can also just use setListAdapter(mAdapter) or
         // mPullRefreshListView.setAdapter(mAdapter)
-        actualListView.setAdapter(mAdapter);
+        actualListView.setAdapter(mTopicAdapter);
     }
 
 

@@ -3,11 +3,12 @@ package co.desgemini.v2extouch;
 import org.json.JSONObject;
 
 /**
- * Created by apple on 3/7/15.
+ * Created by Des Gemini on 3/7/15.
  */
 public class ForumPost {
     private int id;
     private int date;
+    private JSONObject member;
     private String username;
     private String title;
     private String url;
@@ -19,13 +20,15 @@ public class ForumPost {
         try {
             id = jo.getInt("id");
             date = jo.getInt("last_modified");
-            username = jo.getString("username");
+            member = jo.getJSONObject("member");
+            username = member.getString("username");
             title = jo.getString("title");
             url = jo.getString("url");
             content = jo.getString("content");
             content_rendered = jo.getString("content_rendered");
             replyNum = jo.getInt("replies");
         } catch (Exception e) {
+            Exception tmp = e;
         }
     }
     public String getTitle() {

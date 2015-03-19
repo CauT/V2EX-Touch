@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by apple on 3/17/15.
+ * Created by Des Gemini on 3/17/15.
  */
 public class TopicAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
@@ -44,9 +44,9 @@ public class TopicAdapter extends BaseAdapter {
             view = mInflater.inflate(R.layout.topic_view, parent, false);
             holder = new ViewHolder();
             holder.author = (TextView)view.findViewById(R.id.topic_author);
-            holder.title= (TextView)view.findViewById(R.id.topic_title);
-            holder.date= (TextView)view.findViewById(R.id.topic_date);
-            holder.replyNum= (TextView)view.findViewById(R.id.topic_reply_num);
+            holder.title = (TextView)view.findViewById(R.id.topic_title);
+            holder.date = (TextView)view.findViewById(R.id.topic_date);
+            holder.replyNum = (TextView)view.findViewById(R.id.topic_reply_num);
             view.setTag(holder);
         } else {
             view = convertView;
