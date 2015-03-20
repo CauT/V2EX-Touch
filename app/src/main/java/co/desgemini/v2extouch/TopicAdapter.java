@@ -56,8 +56,8 @@ public class TopicAdapter extends BaseAdapter {
         ForumPost tmpForumPost = mTopicViewList.get(position);
         holder.author.setText(tmpForumPost.getAuthor());
         holder.title.setText(tmpForumPost.getTitle());
-        holder.date.setText(tmpForumPost.getDate());
-        holder.replyNum.setText(tmpForumPost.getReplyNum());
+        holder.date.setText(String.valueOf(tmpForumPost.getDate()));
+        holder.replyNum.setText(String.valueOf(tmpForumPost.getReplyNum()));
 
         return view;
     }
