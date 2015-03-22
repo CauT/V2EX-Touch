@@ -2,6 +2,7 @@ package co.desgemini.v2extouch;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,7 +37,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainBrowser extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks{
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -47,8 +48,9 @@ public class MainBrowser extends ActionBarActivity
     // migrate the sample of list view
 //    private LinkedList<String> mListItems;
     private PullToRefreshListView mPullRefreshListView;
-//    private ArrayAdapter<RelativeLayout> mAdapter;
+    //    private ArrayAdapter<RelativeLayout> mAdapter;
     private TopicAdapter mTopicAdapter;
+    private SQLiteDatabase db;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -78,7 +80,7 @@ public class MainBrowser extends ActionBarActivity
             @Override
             public void onRefresh(PullToRefreshBase<ListView> refreshView) {
                 String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(),
-                      DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
 
                 // Update the LastUpdatedLabel
                 refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
@@ -86,32 +88,29 @@ public class MainBrowser extends ActionBarActivity
                 // Do work to refresh the list here.
                 RequestQueue mQueue = Volley.newRequestQueue(getApplicationContext());
                 JsonArrayRequest getRequest = new JsonArrayRequest("https://www.v2ex.com/api/topics/hot.json",
-                      new Response.Listener<JSONArray>() {
-                          @Override
-                          public void onResponse(JSONArray response) {
-                              Log.d("Response", response.toString());
-                              try {
-                                  ForumPost tmpForumPost;
-                                  for (int i = 0; i < response.length(); i++) {
-                                      tmpForumPost = new ForumPost();
-                                      tmpForumPost.loadData((JSONObject) response.get(i));
-                                      HotTopicsArray.add(tmpForumPost);
-                                  }
-//                                  for (ForumPost forumPost : HotTopicsArray) {
-//                                      mListItems.add(forumPost.getTitle());
-//                                  }
-                                  mPullRefreshListView.onRefreshComplete();
-                                  mTopicAdapter.notifyDataSetChanged();
-                              } catch (Exception e) {
-                              }
-                          }
-                      },
-                      new Response.ErrorListener() {
-                          @Override
-                          public void onErrorResponse(VolleyError error) {
-                              Log.d("Error.Response", error.toString());
-                          }
-                      }
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                Log.d("Response", response.toString());
+                                try {
+                                    ForumPost tmpForumPost;
+                                    for (int i = 0; i < response.length(); i++) {
+                                        tmpForumPost = new ForumPost();
+                                        tmpForumPost.loadData((JSONObject) response.get(i));
+                                        HotTopicsArray.add(tmpForumPost);
+                                    }
+                                    mPullRefreshListView.onRefreshComplete();
+                                    mTopicAdapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("Error.Response", error.toString());
+                            }
+                        }
                 );
                 mQueue.add(getRequest);
             }
@@ -256,5 +255,11 @@ public class MainBrowser extends ActionBarActivity
         t.setView(tv);
         t.setDuration(Toast.LENGTH_SHORT);
         t.show();
+    }
+
+    public final void initDatabase(String path) {
+        db = SQLiteDatabase.openOrCreateDatabase(this.getFilesDir().toString() + "/topic.db3", null);
+        String CREATE_TABLE_SQL = "create table topic()";
+        db.execSQL(CREATE_TABLE_SQL);
     }
 }
