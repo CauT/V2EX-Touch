@@ -46,9 +46,7 @@ public class MainBrowser extends ActionBarActivity
     private ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
 
     // migrate the sample of list view
-//    private LinkedList<String> mListItems;
     private PullToRefreshListView mPullRefreshListView;
-    //    private ArrayAdapter<RelativeLayout> mAdapter;
     private TopicAdapter mTopicAdapter;
     private SQLiteDatabase db;
 
@@ -61,7 +59,6 @@ public class MainBrowser extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_browser);
-//        mListItems = new LinkedList<>();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -94,10 +91,19 @@ public class MainBrowser extends ActionBarActivity
                                 Log.d("Response", response.toString());
                                 try {
                                     ForumPost tmpForumPost;
+                                    ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper();
+                                    ForumInfoFactory forumInfoFactory = new ForumInfoFactory();
+                                    TopicInfo tmpTopic = forumInfoFactory.createForumInfo(TopicInfo.class);
+                                    NodeInfo tmpNode = forumInfoFactory.createForumInfo(NodeInfo.class);
+                                    MemberInfo tmpMember= forumInfoFactory.createForumInfo(MemberInfo.class);
                                     for (int i = 0; i < response.length(); i++) {
-                                        tmpForumPost = new ForumPost();
-                                        tmpForumPost.loadData((JSONObject) response.get(i));
-                                        HotTopicsArray.add(tmpForumPost);
+                                        tmpTopic.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+                                        tmpNode.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+                                        tmpMember.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+//                                        tmpForumPost = new ForumPost();
+//                                        tmpForumPost.loadData((JSONObject) response.get(i));
+                                        // Todo
+//                                        HotTopicsArray.add(tmpForumPost);
                                     }
                                     mPullRefreshListView.onRefreshComplete();
                                     mTopicAdapter.notifyDataSetChanged();
@@ -116,31 +122,13 @@ public class MainBrowser extends ActionBarActivity
             }
         });
 
-//        // Add an end-of-list listener
-//        mPullRefreshListView.setOnLastItemVisibleListener(new com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener() {
-//            @Override
-//            public void onLastItemVisible() {
-//                Toast.makeText(MainBrowser.this, "End of List!", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
         ListView actualListView = mPullRefreshListView.getRefreshableView();
 
         // Need to use the Actual ListView when registering for Context Menu
         registerForContextMenu(actualListView);
-//        mAdapter = new ArrayAdapter<RelativeLayout>(this, (textView) android.R.layout.topic_view, mListItems);
         mTopicAdapter = new TopicAdapter(getApplicationContext(), HotTopicsArray);
-        /**
-         * Add Sound Event Listener
-         */
-//        SoundPullEventListener<ListView> soundListener = new SoundPullEventListener<ListView>(this);
-//        soundListener.addSoundEvent(PullToRefreshBase.State.PULL_TO_REFRESH, R.raw.pull_event);
-//        soundListener.addSoundEvent(PullToRefreshBase.State.RESET, R.raw.reset_sound);
-//        soundListener.addSoundEvent(PullToRefreshBase.State.REFRESHING, R.raw.refreshing_sound);
-//        mPullRefreshListView.setOnPullEventListener(soundListener);
 
         // You can also just use setListAdapter(mAdapter) or
-        // mPullRefreshListView.setAdapter(mAdapter)
         actualListView.setAdapter(mTopicAdapter);
     }
 
@@ -257,9 +245,4 @@ public class MainBrowser extends ActionBarActivity
         t.show();
     }
 
-    public final void initDatabase(String path) {
-        db = SQLiteDatabase.openOrCreateDatabase(this.getFilesDir().toString() + "/topic.db3", null);
-        String CREATE_TABLE_SQL = "create table topic()";
-        db.execSQL(CREATE_TABLE_SQL);
-    }
 }
