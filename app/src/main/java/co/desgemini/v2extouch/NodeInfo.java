@@ -20,6 +20,10 @@ public class NodeInfo extends ForumInfo {
     private String avatar_normal;
     private String avatar_large;
 
+    public NodeInfo() {
+        this.tableName = "node";
+    }
+
     public void parseJsonAndInsert(SQLiteDatabase db, JSONObject jsonObject) {
         ContentValues contentValues = new ContentValues();
         try {

@@ -90,8 +90,8 @@ public class MainBrowser extends ActionBarActivity
                             public void onResponse(JSONArray response) {
                                 Log.d("Response", response.toString());
                                 try {
-                                    ForumPost tmpForumPost;
-                                    ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper();
+//                                    ForumPost tmpForumPost;
+                                    ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper(getApplicationContext(), "v2ex_touch.db3", 1);
                                     ForumInfoFactory forumInfoFactory = new ForumInfoFactory();
                                     TopicInfo tmpTopic = forumInfoFactory.createForumInfo(TopicInfo.class);
                                     NodeInfo tmpNode = forumInfoFactory.createForumInfo(NodeInfo.class);

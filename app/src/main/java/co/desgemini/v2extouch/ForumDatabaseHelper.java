@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Des Gemini on 3/21/15.
  */
 public class ForumDatabaseHelper extends SQLiteOpenHelper{
-    public ForumDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    public ForumDatabaseHelper(Context context, String name, int version) {
+        super(context, name, null, version);
     }
 
     @Override

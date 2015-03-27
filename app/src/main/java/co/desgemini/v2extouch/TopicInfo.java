@@ -20,6 +20,9 @@ public class TopicInfo extends ForumInfo {
     private String last_modified;
     private String last_touched;
 
+    public TopicInfo() {
+        this.tableName = "topic";
+    }
     public void parseJsonAndInsert(SQLiteDatabase db, JSONObject jsonObject) {
         ContentValues contentValues = new ContentValues();
         try {

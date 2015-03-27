@@ -14,6 +14,11 @@ public class MemberInfo extends ForumInfo {
     private String username;
     private String tagline;
     private String avatar_mini;
+
+    public MemberInfo() {
+        this.tableName = "member";
+    }
+
     private String avatar_normal;
     private String avatar_large;
 
