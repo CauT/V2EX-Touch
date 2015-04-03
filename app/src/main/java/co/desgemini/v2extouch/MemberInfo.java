@@ -1,6 +1,7 @@
 package co.desgemini.v2extouch;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -22,9 +23,10 @@ public class MemberInfo extends ForumInfo {
     private String avatar_normal;
     private String avatar_large;
 
-    public void parseJsonAndInsert(SQLiteDatabase db, JSONObject jsonObject) {
+    public void parseJsonAndInsert(SQLiteDatabase db, JSONObject outerJsonObject) {
         ContentValues contentValues = new ContentValues();
         try {
+            JSONObject jsonObject = outerJsonObject.getJSONObject("member");
             id = jsonObject.getInt("id");
             contentValues.put("id", id);
             username = jsonObject.getString("username");
@@ -38,8 +40,10 @@ public class MemberInfo extends ForumInfo {
             avatar_large= jsonObject.getString("avatar_large");
             contentValues.put("avatar_large", avatar_large);
             insert2db(db, contentValues);
+        } catch (SQLiteConstraintException e) {
+            Log.v("v2ex_touch", "node already exist!");
         } catch (Exception e) {
-            Log.e("dong", e.toString());
+            Log.e("dong", this.toString() + " : " + e.toString());
         }
     }
 }

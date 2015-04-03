@@ -1,6 +1,7 @@
 package co.desgemini.v2extouch;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -45,8 +46,10 @@ public class TopicInfo extends ForumInfo {
             last_touched = jsonObject.getString("last_touched");
             contentValues.put("last_touched", last_touched);
             insert2db(db, contentValues);
+        } catch (SQLiteConstraintException e) {
+            Log.v("v2ex_touch", "node already exist!");
         } catch (Exception e) {
-            Log.e("dong", e.toString());
+            Log.e("dong", this.toString() + " : " + e.toString());
         }
     }
 }

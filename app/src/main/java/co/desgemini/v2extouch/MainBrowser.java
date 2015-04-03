@@ -108,6 +108,7 @@ public class MainBrowser extends ActionBarActivity
                                     mPullRefreshListView.onRefreshComplete();
                                     mTopicAdapter.notifyDataSetChanged();
                                 } catch (Exception e) {
+                                    Log.e("dong", e.toString());
                                 }
                             }
                         },
