@@ -2,7 +2,6 @@ package co.desgemini.v2extouch;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,12 +42,11 @@ public class MainBrowser extends ActionBarActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
 
     // migrate the sample of list view
     private PullToRefreshListView mPullRefreshListView;
     private TopicAdapter mTopicAdapter;
-    private SQLiteDatabase db;
+    private ConnectionDetector mConnectionDetector;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -58,8 +56,10 @@ public class MainBrowser extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
         setContentView(R.layout.activity_main_browser);
 
+        mConnectionDetector = new ConnectionDetector(getApplicationContext());
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -83,43 +83,31 @@ public class MainBrowser extends ActionBarActivity
                 refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
 
                 // Do work to refresh the list here.
-                RequestQueue mQueue = Volley.newRequestQueue(getApplicationContext());
-                JsonArrayRequest getRequest = new JsonArrayRequest("https://www.v2ex.com/api/topics/hot.json",
-                        new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
-                                Log.d("Response", response.toString());
-                                try {
-//                                    ForumPost tmpForumPost;
-                                    ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper(getApplicationContext(), "v2ex_touch.db3", 1);
-                                    ForumInfoFactory forumInfoFactory = new ForumInfoFactory();
-                                    TopicInfo tmpTopic = forumInfoFactory.createForumInfo(TopicInfo.class);
-                                    NodeInfo tmpNode = forumInfoFactory.createForumInfo(NodeInfo.class);
-                                    MemberInfo tmpMember= forumInfoFactory.createForumInfo(MemberInfo.class);
-                                    for (int i = 0; i < response.length(); i++) {
-                                        tmpTopic.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
-                                        tmpNode.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
-                                        tmpMember.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
-//                                        tmpForumPost = new ForumPost();
-//                                        tmpForumPost.loadData((JSONObject) response.get(i));
-                                        // Todo
-//                                        HotTopicsArray.add(tmpForumPost);
+                if (mConnectionDetector.isConnectingToInternet()) {
+                    RequestQueue mQueue = Volley.newRequestQueue(getApplicationContext());
+                    JsonArrayRequest jar = new JsonArrayRequest("https://www.v2ex.com/api/topics/hot.json",
+                            new Response.Listener<JSONArray>() {
+                                @Override
+                                public void onResponse(JSONArray response) {
+                                    Log.d("Response", response.toString());
+                                    try {
+                                        MainBrowser.this.getHotTopicsFromWeb(response);
+                                    } catch (Exception e) {
+                                        Log.e("v2ex_touch", e.toString());
                                     }
-                                    mPullRefreshListView.onRefreshComplete();
-                                    mTopicAdapter.notifyDataSetChanged();
-                                } catch (Exception e) {
-                                    Log.e("dong", e.toString());
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("Error.Response", error.toString());
                                 }
                             }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("Error.Response", error.toString());
-                            }
-                        }
-                );
-                mQueue.add(getRequest);
+                    );
+                    mQueue.add(jar);
+                } else {
+                    MainBrowser.this.showToast(getApplicationContext(), "无网络连接");
+                }
             }
         });
 
@@ -246,4 +234,33 @@ public class MainBrowser extends ActionBarActivity
         t.show();
     }
 
+    private ArrayList<ForumPost> getHotTopicsFromWeb(JSONArray response) {
+        ArrayList<ForumPost> forumPostArrayList = new ArrayList<>();
+        try {
+            ForumPost tmpForumPost;
+            ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper(getApplicationContext(), "v2ex_touch.db3", 1);
+            ForumInfoFactory forumInfoFactory = new ForumInfoFactory();
+            TopicInfo tmpTopic = forumInfoFactory.createForumInfo(TopicInfo.class);
+            NodeInfo tmpNode = forumInfoFactory.createForumInfo(NodeInfo.class);
+            MemberInfo tmpMember = forumInfoFactory.createForumInfo(MemberInfo.class);
+            for (int i = 0; i < response.length(); i++) {
+                tmpTopic.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+                tmpNode.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+                tmpMember.parseJsonAndInsert(forumDatabaseHelper.getWritableDatabase(), (JSONObject) response.get(i));
+                tmpForumPost = new ForumPost();
+                tmpForumPost.loadData((JSONObject) response.get(i));
+                forumPostArrayList.add(tmpForumPost);
+            }
+            mPullRefreshListView.onRefreshComplete();
+            mTopicAdapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            Log.v("v2ex_touch", e.toString());
+        }
+        return forumPostArrayList;
+    }
+
+    private ArrayList<ForumPost> getHotTopicsFromDB() {
+        ArrayList<ForumPost> forumPostArrayList = new ArrayList<>();
+        return forumPostArrayList;
+    }
 }
