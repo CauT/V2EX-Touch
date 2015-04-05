@@ -2,6 +2,8 @@ package co.desgemini.v2extouch;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -47,6 +49,7 @@ public class MainBrowser extends ActionBarActivity
     private PullToRefreshListView mPullRefreshListView;
     private TopicAdapter mTopicAdapter;
     private ConnectionDetector mConnectionDetector;
+    private ForumDatabaseHelper forumDatabaseHelper;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -56,6 +59,7 @@ public class MainBrowser extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        forumDatabaseHelper = new ForumDatabaseHelper(getApplicationContext(), "v2ex_touch.db3", 1);
         ArrayList<ForumPost> HotTopicsArray = new ArrayList<>();
         setContentView(R.layout.activity_main_browser);
 
@@ -238,7 +242,6 @@ public class MainBrowser extends ActionBarActivity
         ArrayList<ForumPost> forumPostArrayList = new ArrayList<>();
         try {
             ForumPost tmpForumPost;
-            ForumDatabaseHelper forumDatabaseHelper = new ForumDatabaseHelper(getApplicationContext(), "v2ex_touch.db3", 1);
             ForumInfoFactory forumInfoFactory = new ForumInfoFactory();
             TopicInfo tmpTopic = forumInfoFactory.createForumInfo(TopicInfo.class);
             NodeInfo tmpNode = forumInfoFactory.createForumInfo(NodeInfo.class);
@@ -261,6 +264,20 @@ public class MainBrowser extends ActionBarActivity
 
     private ArrayList<ForumPost> getHotTopicsFromDB() {
         ArrayList<ForumPost> forumPostArrayList = new ArrayList<>();
+        SQLiteDatabase db = forumDatabaseHelper.getReadableDatabase();
+        // sql query command: select * from member natural join node natural join topic order by last_modified desc
+        Cursor cursor = db.rawQuery(
+                "select * from member natural join node natural join topic order by last_modified desc",
+                new String[]{});
+        String str = cursor.getString(cursor.getColumnIndex("title"));
+        Log.v("v2ex_touch", str);
+        cursor.close();
         return forumPostArrayList;
+    }
+
+    @Override
+    public void onDestroy() {
+        forumDatabaseHelper.close();
+        super.onDestroy();
     }
 }

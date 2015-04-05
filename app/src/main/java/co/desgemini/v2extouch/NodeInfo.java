@@ -11,26 +11,25 @@ import org.json.JSONObject;
  * Created by Des Gemini on 3/22/15.
  */
 public class NodeInfo extends ForumInfo {
-    private int id;
-    private String name;
-    private String title;
-    private String title_alternative;
-    private String url;
-    private int topics;
-    private String avatar_mini;
-    private String avatar_normal;
-    private String avatar_large;
-
     public NodeInfo() {
         this.tableName = "node";
     }
 
     public void parseJsonAndInsert(SQLiteDatabase db, JSONObject outerJsonObject) {
+        int id;
+        int topics;
+        String name;
+        String title;
+        String title_alternative;
+        String url;
+        String avatar_mini;
+        String avatar_normal;
+        String avatar_large;
         ContentValues contentValues = new ContentValues();
         try {
             JSONObject jsonObject = outerJsonObject.getJSONObject("node");
             id = jsonObject.getInt("id");
-            contentValues.put("id", id);
+            contentValues.put("node_id", id);
             topics = jsonObject.getInt("topics");
             contentValues.put("topics", topics);
             name = jsonObject.getString("name");
